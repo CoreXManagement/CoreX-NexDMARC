@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# CoreX NexDMARC CLI
+set -euo pipefail
+
+INSTALL_DIR="${NEXDMARC_DIR:-/opt/corex-nexdmarc}"
+SERVICE="corex-nexdmarc"
+
+case "${1:-help}" in
+  start)
+    sudo systemctl start "$SERVICE"
+    ;;
+  stop)
+    sudo systemctl stop "$SERVICE"
+    ;;
+  restart)
+    sudo systemctl restart "$SERVICE"
+    ;;
+  status)
+    systemctl status "$SERVICE" --no-pager || true
+    ;;
+  logs)
+    journalctl -u "$SERVICE" -n 200 --no-pager -f
+    ;;
+  update)
+    sudo "$INSTALL_DIR/scripts/update.sh"
+    ;;
+  ingest)
+    shift
+    cd "$INSTALL_DIR"
+    sudo -u nexdmarc -H ./node_modules/.bin/tsx scripts/ingest-cli.ts "$@"
+    ;;
+  version)
+    node -e "console.log(require('$INSTALL_DIR/package.json').version)"
+    ;;
+  help|*)
+    cat <<EOF
+nexdmarc — CoreX NexDMARC CLI
+
+  start | stop | restart | status | logs
+  update
+  ingest <file-or-dir> [...]
+  version
+EOF
+    ;;
+esac
