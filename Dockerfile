@@ -2,9 +2,10 @@ FROM node:20-alpine AS builder
 RUN apk add --no-cache python3 make g++
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci
+# NODE_ENV must not be production here — build tools (tailwindcss, postcss) are devDependencies
+RUN NODE_ENV=development npm ci
 COPY . .
-RUN ls components/ui/ && npm run build && npm prune --omit=dev
+RUN npm run build && npm prune --omit=dev
 
 FROM node:20-alpine AS runner
 WORKDIR /app
