@@ -4,7 +4,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY . .
-RUN npm run build && npm prune --omit=dev
+RUN ls components/ui/ && npm run build && npm prune --omit=dev
 
 FROM node:20-alpine AS runner
 WORKDIR /app
